@@ -12,10 +12,6 @@ class Producto
     public $fecha_alta;
     public $fecha_modificacion;
     public $fecha_baja;
-    /* public $mail;
-    public $sector_id;
-    public $rol_id;
-     */
 
     public function crearProducto()
     {
@@ -59,9 +55,6 @@ class Producto
                                                         , fecha_alta
                                                         , fecha_modificacion
                                                         , fecha_baja
-                                                        /* , mail
-                                                        , sector_id
-                                                        , rol_id*/
                                                          FROM productos");
         
         $consulta->execute();
@@ -106,13 +99,10 @@ class Producto
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("UPDATE productos 
                                                         SET precio = :precio, 
-                                                            stock = stock + :stock/*, 
-                                                             fecha_modificacion = :fecha_modificacion  */
+                                                            stock = stock + :stock
                                                         WHERE id = :id");
-        /* $fecha_modificacion = date("Y-m-d H:i:s"); */
         $consulta->bindValue(':precio', $precio, PDO::PARAM_STR);
         $consulta->bindValue(':stock', $stock, PDO::PARAM_INT);
-        /* $consulta->bindValue(':fecha_modificacion', $fecha_modificacion, PDO::PARAM_STR); */
         $consulta->bindValue(':id', $id, PDO::PARAM_INT);
         $consulta->execute();
     }

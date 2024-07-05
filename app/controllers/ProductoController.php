@@ -52,7 +52,7 @@ class ProductoController extends Producto implements IApiUsable
         $prod->tipo = $tipo;
         $prod->marca = $marca;
         $prod->stock = $stock;
-        $prod->imagen = '/ImagenesDeProductos/2024/' . $nombreImagen; // Guardar la ruta de la imagen en la base de datos
+        $prod->imagen = '/ImagenesDeProductos/2024/' . $nombreImagen;
 
         $prod->crearProducto();
 

@@ -63,7 +63,6 @@ class PedidoController extends Pedido implements IApiUsable
         $ped->stock = $stock;
         $ped->precio = $montoTotal;
         /* $ped->imagen = $nombreImagen; */
-        /* $ped->id_pedido_estado = $id_pedido_estado; */
 
         $ped->crearPedido();
 
@@ -144,23 +143,6 @@ class PedidoController extends Pedido implements IApiUsable
 
         return '/ImagenesDeVenta/2024/' . $nombreArchivo;
     }
-
-   /*  public function ventasPorUsuario($request, $response, $args)
-    {
-        $params = $request->getQueryParams();
-        if(!isset($params['mail'])){
-          $payload = json_encode(array("error" => "No se ingreso un mail valido")); 
-          $response->getBody()->write($payload);
-          return $response->withHeader('Content-Type', 'application/json');
-        }
-        $email = $params['mail'];
-
-        $pedidosUsuario = Pedido::pedidosPorUsuario($email);
-        
-        $payload = json_encode(array("mensaje" => "Se vendieron " . $cantidadVendidos . " el dia ". $fecha)); 
-        $response->getBody()->write($payload);
-        return $response->withHeader('Content-Type', 'application/json');
-    } */
 
     public function ventasPorUsuario($request, $response, $args)
     {

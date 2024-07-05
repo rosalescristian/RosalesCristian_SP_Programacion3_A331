@@ -29,8 +29,6 @@ class Pedido
         /* $codigo_pedido = $this->generarCodigoUnico();
 
         $consulta->bindValue(':id', $codigo_pedido, PDO::PARAM_STR); */
-        /* $consulta->bindValue(':mes', date_format($fecha, 'Ym'));
-        $consulta->bindValue(':fecha', date_format($fecha, 'Y-m-d')); */
         $consulta->bindValue(':email', $this->email, PDO::PARAM_STR);
         $consulta->bindValue(':nombre_producto', $this->nombre, PDO::PARAM_STR);
         $consulta->bindValue(':tipo_producto', $this->tipo, PDO::PARAM_STR);
@@ -61,88 +59,15 @@ class Pedido
         return $objAccesoDatos; // Devolver el ID de la venta insertada
     }
 
-    /* public static function obtenerTodos()
-    {
-        $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id
-                                                            , mes
-                                                            , fecha
-                                                            , fecha_hora
-                                                            , turno_id
-                                                            , estado_id
-                                                            , id_empleado
-                                                            , id_mesa
-                                                            , url_foto
-                                                            , id_pedido_estado
-                                                            , fecha_hora_fin
-                                                            , mesa_encuesta
-                                                            , restaurante_encuesta
-                                                            , mozo_encuesta
-                                                            , cocinero_encuesta
-                                                            , observaciones
-                                                            , propina
-                                                         FROM pedidos");
-        
-        $consulta->execute();
-
-        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
-    }
-
-    public static function obtenerPedido($pedido)
-    {
-        $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id
-                                                            , mes
-                                                            , fecha
-                                                            , fecha_hora
-                                                            , turno_id
-                                                            , estado_id
-                                                            , id_empleado
-                                                            , id_mesa
-                                                            , url_foto
-                                                            , id_pedido_estado
-                                                            , fecha_hora_fin
-                                                            , mesa_encuesta
-                                                            , restaurante_encuesta
-                                                            , mozo_encuesta
-                                                            , cocinero_encuesta
-                                                            , observaciones
-                                                            , propina
-                                                         FROM pedidos
-                                                        WHERE id = :id");
-        $consulta->bindValue(':id', $pedido, PDO::PARAM_STR);
-        $consulta->execute();
-
-        return $consulta->fetchObject('Pedido');
-    } */
-
     public static function modificarPedido($pedido)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos 
-                                                        SET   /* estado_id = :estado_id
-                                                            , url_foto = :url_foto
-                                                            ,  */id_pedido_estado = :id_pedido_estado
-                                                            /* , fecha_hora_fin = :fecha_hora_fin
-                                                            , mesa_encuesta = :mesa_encuesta
-                                                            , restaurante_encuesta = :restaurante_encuesta
-                                                            , mozo_encuesta = :mozo_encuesta
-                                                            , cocinero_encuesta = :cocinero_encuesta
-                                                            , observaciones = :observaciones
-                                                            , propina = :propina  */
+                                                        SET  id_pedido_estado = :id_pedido_estado
+                                                            
                                                     WHERE id = :id");
-        /* $consulta->bindValue(':pedido', $pedido->pedido, PDO::PARAM_STR); */
         $consulta->bindValue(':id', $pedido->id, PDO::PARAM_INT);
-        /* $consulta->bindValue(':estado_id', $pedido->estado_id, PDO::PARAM_STR);
-        $consulta->bindValue(':url_foto', $pedido->url_foto, PDO::PARAM_STR); */
         $consulta->bindValue(':id_pedido_estado', $pedido->id_pedido_estado, PDO::PARAM_STR);
-        /* $consulta->bindValue(':fecha_hora_fin', $pedido->fecha_hora_fin, PDO::PARAM_STR);
-        $consulta->bindValue(':mesa_encuesta', $pedido->mesa_encuesta, PDO::PARAM_STR);
-        $consulta->bindValue(':restaurante_encuesta', $pedido->restaurante_encuesta, PDO::PARAM_STR);
-        $consulta->bindValue(':mozo_encuesta', $pedido->mozo_encuesta, PDO::PARAM_STR);
-        $consulta->bindValue(':cocinero_encuesta', $pedido->cocinero_encuesta, PDO::PARAM_STR);
-        $consulta->bindValue(':obervaciones', $pedido->obervaciones, PDO::PARAM_STR);
-        $consulta->bindValue(':propina', $pedido->propina, PDO::PARAM_STR); */
         $consulta->execute();
     }
 
