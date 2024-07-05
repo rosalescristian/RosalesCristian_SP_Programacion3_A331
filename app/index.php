@@ -17,11 +17,11 @@ use Slim\Routing\RouteContext;
 require __DIR__ . '/../vendor/autoload.php';
 require_once './db/AccesoDatos.php';
 // require_once './middlewares/Logger.php';
-require_once './middlewares/RolMiddleware.php';
+/* require_once './middlewares/RolMiddleware.php';
 require_once './middlewares/DatosMiddleware.php';
-require_once './controllers/UsuarioController.php';
+require_once './controllers/UsuarioController.php'; */
 require_once './controllers/ProductoController.php';
-require_once './controllers/MesaController.php';
+/* require_once './controllers/MesaController.php'; */
 require_once './controllers/PedidoController.php';
 
 // Load ENV
@@ -39,7 +39,32 @@ $app->addBodyParsingMiddleware(); // Se parsea el body por si entrar por PUT
 
 
 // Routes
-$app->group('/usuarios', function (RouteCollectorProxy $group) {
+$app->group('/tienda', function (RouteCollectorProxy $group) {
+  /* $group->get('/consultar', \ProductoController::class . ':TraerTodos'); */
+  /* $group->post('/consultar', \ProductoController::class . ':TraerUno'); */
+  $group->post('/alta', \ProductoController::class . ':CargarUno')/* 
+              ->add(new RolMiddleware(['socio','mozo','bartender','cervecero','cocinero']))
+              ->add(\DatosMiddleware::class . ':datosMiddlewareProducto') */;
+});
+
+$app->group('/ventas', function (RouteCollectorProxy $group) {
+  /* $group->get('/consultar', \ProductoController::class . ':TraerTodos'); */
+ /*  $group->get('/consultar', \ProductoController::class . ':TraerUno'); */
+  $group->post('/alta', \PedidoController::class . ':CargarUno')/* 
+              ->add(new RolMiddleware(['socio','mozo','bartender','cervecero','cocinero']))
+              ->add(\DatosMiddleware::class . ':datosMiddlewareProducto') */;
+});
+
+$app->group('/ventas/consultar', function (RouteCollectorProxy $group) {
+  $group->get('/productos/vendidos', \ProductoController::class . ':TraerTodos');
+  $group->get('/ventas/porUsuario', \PedidoController::class . ':TraerUno');
+  $group->get('/ventas/porProducto', \PedidoController::class . ':TraerUno');
+  $group->get('/productos/entreValores', \ProductoController::class . ':TraerUno');
+  $group->get('/ventas/ingresos', \PedidoController::class . ':TraerUno');
+  $group->get('/productos/masVendidos', \ProductoController::class . ':TraerUno');
+});
+
+/* $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
     $group->post('[/]', \UsuarioController::class . ':CargarUno')
@@ -48,9 +73,9 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
   });
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
-  $group->get('[/]', \ProductoController::class . ':TraerTodos');
-  $group->get('/{producto}', \ProductoController::class . ':TraerUno');
-  $group->post('[/]', \ProductoController::class . ':CargarUno')
+  $group->get('[/]', \TiendaController::class . ':TraerTodos');
+  $group->get('/{producto}', \TiendaController::class . ':TraerUno');
+  $group->post('[/]', \TiendaController::class . ':CargarUno')
               ->add(new RolMiddleware(['socio','mozo','bartender','cervecero','cocinero']))
               ->add(\DatosMiddleware::class . ':datosMiddlewareProducto');
 });
@@ -75,8 +100,8 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/archivos', function(RouteCollectorProxy $group){
-  $group->post('/cargar-csv', \ProductoController::class . ':importarCsvProductos');
-  $group->get('/exportar-csv', \ProductoController::class . ':exportarCsvProductos');
-});
+  $group->post('/cargar-csv', \TiendaController::class . ':importarCsvProductos');
+  $group->get('/exportar-csv', \TiendaController::class . ':exportarCsvProductos');
+}); */
 
 $app->run();
