@@ -18,6 +18,7 @@ require __DIR__ . '/../vendor/autoload.php';
 require_once './db/AccesoDatos.php';
 require_once './controllers/ProductoController.php';
 require_once './controllers/PedidoController.php';
+require_once './controllers/UsuarioController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -43,13 +44,17 @@ $app->group('/ventas', function (RouteCollectorProxy $group) {
   $group->post('/alta', \PedidoController::class . ':CargarUno');
 });
 
+$app->group('/registro', function (RouteCollectorProxy $group) {
+  $group->post('[/]', \UsuarioController::class . ':CargarUno');
+});
+
 $app->group('/ventas/consultar', function (RouteCollectorProxy $group) {
   $group->get('/productos/vendidos', \ProductoController::class . ':productosVendidos'); // OK
   $group->get('/ventas/porUsuario', \PedidoController::class . ':ventasPorUsuario'); // OK
   $group->get('/ventas/porProducto', \PedidoController::class . ':ventasPorTipoProducto'); // OK
   $group->get('/productos/entreValores', \ProductoController::class . ':ventasEntreValores'); // OK
-  $group->get('/ventas/ingresos', \PedidoController::class . ':TraerUno'); // 
-  $group->get('/productos/masVendidos', \ProductoController::class . ':MasVendidos'); // 
+  $group->get('/ventas/ingresos', \PedidoController::class . ':TraerUno'); // IF fecha null entonces todos, else otro metodo de 1 dia
+  $group->get('/productos/masVendidos', \ProductoController::class . ':MasVendidos'); // OK
 });
 
 $app->run();
