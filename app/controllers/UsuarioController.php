@@ -6,27 +6,6 @@ use Firebase\JWT\JWT;
 class UsuarioController extends Usuario implements IApiUsable
 {
 
-    public function login($request, $response, $args)
-    {
-        $data = $request->getParsedBody();
-        $usuario = $data['usuario'] ?? '';
-        $password = $data['password'] ?? '';
-
-        Usuario::loginUsuario($usuario, $password);
-        
-        if($usuario){
-          $tokenPayload = ['usuario' => $usuario,
-                            'perfil' => $usuario['perfil'],
-        ];
-
-            $config = require __DIR__ . '/../config.php';
-            $token = JWT::encode($tokenPayload, $config['secret'], 'HS256');
-
-            return $response->withJson(['token' => $token]);
-        } else {
-            return $response->withStatus(401)->withJson(['error' => 'Usuario o contraseña incorrectos']);
-        }
-    }
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
@@ -142,5 +121,39 @@ class UsuarioController extends Usuario implements IApiUsable
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function LoginUsuario($request, $response, $args)
+    {
+        $data  = $request->getParsedBody();
+
+        $usuario = $data['usuario'];
+        $password = $data['contrasena'];
+
+        $user = Usuario::verificarCredenciales($usuario, $password);
+
+        if ($user) {
+          $issuedAt = time();
+          $expirationTime = $issuedAt + 7200; 
+          $payload = array(
+              'iat' => $issuedAt,
+              'exp' => $expirationTime,
+              'data' => [
+                  'id' => $user->id,
+                  'usuario' => $user->usuario,
+                  'perfil' => $user->perfil
+              ]
+          );
+        
+          $secretKey = $_ENV['JWT_SECRET'];
+          $token = JWT::encode($payload, $secretKey, 'HS256');
+
+          $response->getBody()->write(json_encode(['token' => $token]));
+          return $response->withHeader('Content-Type', 'application/json');
+
+        } else {
+          $response->getBody()->write(json_encode(['error' => 'Credenciales invalidas']));
+          return $response->withHeader('Content-Type', 'application/json');
+      }
     }
 }

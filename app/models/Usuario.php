@@ -2,11 +2,14 @@
 
 class Usuario
 {
+    public $id;
     public $mail;
     public $usuario;
     public $contrasena;
     public $perfil;
     public $foto;
+    public $fecha_de_alta;
+    public $fecha_de_baja;
 
     public function crearUsuario()
     {
@@ -14,7 +17,8 @@ class Usuario
         $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO usuarios (mail, usuario, contrasena, perfil, foto, fecha_de_alta) 
                                                         VALUES (:mail, :usuario, :contrasena, :perfil, :foto, :fecha_de_alta)");
         
-        $claveHash = password_hash($this->contrasena, PASSWORD_DEFAULT);
+        /* $claveHash = password_hash($this->contrasena, PASSWORD_DEFAULT); */
+        $claveHash = $this->contrasena;
         $fecha = date('Ymd');
         
         $consulta->bindValue(':mail', $this->mail, PDO::PARAM_STR);
@@ -47,16 +51,6 @@ class Usuario
         return $consulta->fetchObject('Usuario');
     }
 
-    /* public static function modificarUsuario()
-    {
-        $objAccesoDato = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDato->prepararConsulta("UPDATE usuarios SET usuario = :usuario, clave = :clave WHERE id = :id");
-        $consulta->bindValue(':usuario', $this->usuario, PDO::PARAM_STR);
-        $consulta->bindValue(':clave', $this->clave, PDO::PARAM_STR);
-        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
-        $consulta->execute();
-    } */
-
     public static function borrarUsuario($usuario)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
@@ -67,12 +61,19 @@ class Usuario
         $consulta->execute();
     }
 
-    public function loginUsuario($usuario, $password){
+    public function verificarCredenciales($usuario, $password){
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT usuario, clave FROM usuarios WHERE usuario = :usuario");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM usuarios WHERE usuario = :usuario");
         $consulta->bindValue(':usuario', $usuario, PDO::PARAM_STR);
         $consulta->execute();
+        $user = $consulta->fetchObject(Usuario::class);
 
-        return $consulta->fetch(PDO::FETCH_ASSOC);
+        /* if ($user && password_verify($password, $user->contrasena)) {
+            return $user;
+        } */
+        if ($user && $password===$user->contrasena) {
+            return $user;
+        }
+        return false;
     }
 }

@@ -13,6 +13,9 @@ use Slim\Factory\AppFactory;
 use Slim\Psr7\Response; // No podemos usar esta interfaz xq ya estamos usando la de Psr en la linea 7
 use Slim\Routing\RouteCollectorProxy;
 use Slim\Routing\RouteContext;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use App\Middleware\ConfirmarPerfil;
 
 require __DIR__ . '/../vendor/autoload.php';
 require_once './db/AccesoDatos.php';
@@ -35,13 +38,15 @@ $app->addErrorMiddleware(true, true, true);
 $app->addBodyParsingMiddleware();
 
 
+
 // Routes
-$app->post('/login',\UsuarioController::class . ':login');
+
+$app->post('/login', \UsuarioController::class . ':LoginUsuario');
 
 $app->group('/tienda', function (RouteCollectorProxy $group) {
   $group->post('/alta', \ProductoController::class . ':CargarUno');
   $group->post('/consultar', \ProductoController::class . ':TraerUno');
-});
+})/* ->add(new ConfirmarPerfil(['admin'])) */;
 
 $app->group('/ventas', function (RouteCollectorProxy $group) {
   $group->post('/alta', \PedidoController::class . ':CargarUno');
@@ -55,7 +60,7 @@ $app->group('/ventas', function (RouteCollectorProxy $group) {
     $group->get('/ventas/ingresos', \PedidoController::class . ':ingresos'); // OK
     $group->get('/productos/masVendidos', \ProductoController::class . ':MasVendidos'); // OK
   });
-});
+})/* ->add(new ConfirmarPerfil(['admin', 'empleado'])) */;
 
 $app->group('/registro', function (RouteCollectorProxy $group) {
   $group->post('[/]', \UsuarioController::class . ':CargarUno');
