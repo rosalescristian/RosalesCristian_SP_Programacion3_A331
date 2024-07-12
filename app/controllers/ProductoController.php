@@ -22,6 +22,11 @@ class ProductoController extends Producto implements IApiUsable
           $response->getBody()->write($payload);
           return $response->withHeader('Content-Type', 'application/json');
       }
+        if($tipo != 'Smartphone' && $tipo != 'Tablet'){
+          $payload = json_encode(array("mensaje" => "El tipo de producto no es el correcto."));
+          $response->getBody()->write($payload);
+          return $response->withHeader('Content-Type', 'application/json'); 
+        }
 
         $directorioImagenes = __DIR__ . '/../ImagenesDeProductos/2024/';
 
@@ -68,8 +73,9 @@ class ProductoController extends Producto implements IApiUsable
       // Buscamos producto por nombre de producto
       $param = $request->getParsedBody();
       $producto = null;
-      $marca = '';
+      $nombre = '';
       $tipo = '';
+      $marca = '';
   
       if (isset($param['marca'], $param['tipo'], $param['nombre'])) {
           $nombre = $param['nombre'];
@@ -94,8 +100,7 @@ class ProductoController extends Producto implements IApiUsable
       }
   
       $response->getBody()->write($payload);
-      return $response
-          ->withHeader('Content-Type', 'application/json');
+      return $response->withHeader('Content-Type', 'application/json');
   }
 
     public function TraerTodos($request, $response, $args)
@@ -258,18 +263,25 @@ class ProductoController extends Producto implements IApiUsable
 
   public function productosVendidos($request, $response, $args)
     {
-        $params = $request->getQueryParams();
-        if(!isset($params['fecha_venta'])){
-          $fecha = date('Y-m-d', strtotime('-1 day'));
-        }
-        else{
-          $fecha = $params['fecha_venta'];
-        }
+      $params = $request->getQueryParams();
 
-        $cantidadVendidos = Producto::obtenerCantidadVendidosPorFecha($fecha);
-        $payload = json_encode(array("mensaje" => "Se vendieron " . $cantidadVendidos . " el dia ". $fecha)); 
+      if (!isset($params['fecha_venta']) || empty($params['fecha_venta'])) {
+          $fecha = date('Y-m-d', strtotime('-1 day'));
+      } else {
+          $fecha = $params['fecha_venta'];
+      }
+
+      $cantidadVendidos = Producto::obtenerCantidadVendidosPorFecha($fecha);
+
+      if($cantidadVendidos > 0){
+        $payload = json_encode(array("mensaje" => "Se vendieron " . $cantidadVendidos . " el día " . $fecha));
         $response->getBody()->write($payload);
-        return $response->withHeader('Content-Type', 'application/json');
+      }
+      else{
+        $payload = json_encode(array("mensaje" => "No se encontraron ventas el día " . $fecha));
+        $response->getBody()->write($payload);
+      }
+      return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function MasVendidos($request, $response, $args)
@@ -278,9 +290,25 @@ class ProductoController extends Producto implements IApiUsable
       $payload = json_encode(array("listaProducto" => $lista));
 
       $response->getBody()->write($payload);
-      return $response
-        ->withHeader('Content-Type', 'application/json');
+      return $response->withHeader('Content-Type', 'application/json');
     }
+
+    public function productoMasVendido($request, $response, $args)
+    {
+      var_dump("llego hasta aca");
+      $producto = Producto::obtenerProductoMasVendido();
+      var_dump($producto);
+      if ($producto === null) {
+          $payload = json_encode(array("mensaje" => "No se encontraron productos vendidos."));
+      } else {
+          $payload = json_encode(array("productoMasVendido" => $producto));
+      }
+
+      $response->getBody()->write($payload);
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+
+
 
     
 }

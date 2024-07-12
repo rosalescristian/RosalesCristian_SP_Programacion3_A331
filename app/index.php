@@ -32,7 +32,7 @@ $app = AppFactory::create();
 $app->addErrorMiddleware(true, true, true);
 
 // Add parse body
-$app->addBodyParsingMiddleware(); // Se parsea el body por si entrar por PUT
+$app->addBodyParsingMiddleware();
 
 
 // Routes
@@ -40,23 +40,25 @@ $app->post('/login',\UsuarioController::class . ':login');
 
 $app->group('/tienda', function (RouteCollectorProxy $group) {
   $group->post('/alta', \ProductoController::class . ':CargarUno');
+  $group->post('/consultar', \ProductoController::class . ':TraerUno');
 });
 
 $app->group('/ventas', function (RouteCollectorProxy $group) {
   $group->post('/alta', \PedidoController::class . ':CargarUno');
+  $group->put('/modificar', \PedidoController::class . ':ModificarUno'); 
+
+  $group->group('/consultar', function (RouteCollectorProxy $group) {
+    $group->get('/productos/vendidos', \ProductoController::class . ':productosVendidos'); // OK
+    $group->get('/ventas/porUsuario', \PedidoController::class . ':ventasPorUsuario'); // OK
+    $group->get('/ventas/porProducto', \PedidoController::class . ':ventasPorTipoProducto'); //OK
+    $group->get('/productos/entreValores', \PedidoController::class . ':ventasEntreValores'); // OK
+    $group->get('/ventas/ingresos', \PedidoController::class . ':ingresos'); // OK
+    $group->get('/productos/masVendidos', \ProductoController::class . ':MasVendidos'); // OK
+  });
 });
 
 $app->group('/registro', function (RouteCollectorProxy $group) {
   $group->post('[/]', \UsuarioController::class . ':CargarUno');
-});
-
-$app->group('/ventas/consultar', function (RouteCollectorProxy $group) {
-  $group->get('/productos/vendidos', \ProductoController::class . ':productosVendidos'); // OK
-  $group->get('/ventas/porUsuario', \PedidoController::class . ':ventasPorUsuario'); // OK
-  $group->get('/ventas/porProducto', \PedidoController::class . ':ventasPorTipoProducto'); // OK
-  $group->get('/productos/entreValores', \ProductoController::class . ':ventasEntreValores'); // OK
-  $group->get('/ventas/ingresos', \PedidoController::class . ':TraerUno'); // IF fecha null entonces todos, else otro metodo de 1 dia
-  $group->get('/productos/masVendidos', \ProductoController::class . ':MasVendidos'); // OK
 });
 
 $app->run();

@@ -2,6 +2,7 @@
 
 class Pedido
 {
+    public $id;
     public $email;
     public $nombre;
     public $tipo;
@@ -9,6 +10,10 @@ class Pedido
     public $stock;
     public $precio;
     public $imagen;
+    public $nombre_producto;
+    public $tipo_producto;
+    public $marca_producto;
+    public $fecha_venta;
 
     public function crearPedido()
     {
@@ -59,18 +64,6 @@ class Pedido
         return $objAccesoDatos; // Devolver el ID de la venta insertada
     }
 
-    public static function modificarPedido($pedido)
-    {
-        $objAccesoDato = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos 
-                                                        SET  id_pedido_estado = :id_pedido_estado
-                                                            
-                                                    WHERE id = :id");
-        $consulta->bindValue(':id', $pedido->id, PDO::PARAM_INT);
-        $consulta->bindValue(':id_pedido_estado', $pedido->id_pedido_estado, PDO::PARAM_STR);
-        $consulta->execute();
-    }
-
     public static function borrarPedido($pedido)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
@@ -117,7 +110,7 @@ class Pedido
         $consulta->bindValue(':email', $email, PDO::PARAM_STR);
         $consulta->execute();
 
-        return $consulta->fetchObject('Pedido');
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
     }
 
     public static function pedidosPorTipoProducto($tipo)
@@ -142,10 +135,67 @@ class Pedido
         $consulta->bindValue(':max', $max, PDO::PARAM_STR);
         $consulta->execute();
 
-        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        $resultado = $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
 
         return $resultado;
 
     }
+    public function obtenerGananciasTotales()
+    {
+    $objAccesoDatos = AccesoDatos::obtenerInstancia();
+    $consulta = $objAccesoDatos->prepararConsulta("SELECT SUM(PRECIO) AS TOTAL 
+                                                    FROM VENTAS");
+    $consulta->execute();
+
+    $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
     
+    return $resultado['TOTAL'] ?? 0;
+    }
+
+    public static function obtenerGananciasPorFecha($fecha)
+    {
+    $objAccesoDatos = AccesoDatos::obtenerInstancia();
+    $consulta = $objAccesoDatos->prepararConsulta("SELECT SUM(PRECIO) AS TOTAL 
+                                                    FROM VENTAS 
+                                                    WHERE DATE(FECHA_VENTA) = :FECHA");
+    $consulta->bindValue(':FECHA', $fecha, PDO::PARAM_STR);
+    $consulta->execute();
+
+    $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+    
+    return $resultado['total'] ?? 0;
+    }
+
+    public static function obtenerPorNumeroPedido($numeroPedido)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * 
+                                                        FROM ventas 
+                                                        WHERE id = :numero_pedido");
+        $consulta->bindValue(':numero_pedido', $numeroPedido, PDO::PARAM_INT);
+        $consulta->execute();
+
+        return $consulta->fetchObject('Pedido');
+    }
+
+    public static function modificarPedido($venta)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE ventas 
+                                                        SET email = :email
+                                                        , nombre_producto = :nombre
+                                                        , tipo_producto = :tipo
+                                                        , marca_producto = :marca
+                                                        , stock = :cantidad
+                                                        WHERE id = :numero_pedido");
+        $consulta->bindValue(':email', $venta->email, PDO::PARAM_STR);
+        $consulta->bindValue(':nombre', $venta->nombre, PDO::PARAM_STR);
+        $consulta->bindValue(':tipo', $venta->tipo, PDO::PARAM_STR);
+        $consulta->bindValue(':marca', $venta->marca, PDO::PARAM_STR);
+        $consulta->bindValue(':cantidad', $venta->stock, PDO::PARAM_INT);
+        $consulta->bindValue(':numero_pedido', $venta->id, PDO::PARAM_INT);
+
+        return $consulta->execute();
+    }
 }
+

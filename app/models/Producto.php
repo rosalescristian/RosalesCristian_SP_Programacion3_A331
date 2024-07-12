@@ -198,32 +198,47 @@ class Producto
     public function obtenerCantidadVendidosPorFecha($fecha)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT SUM(STOCK)
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT COUNT(*) AS CANTIDAD
                                                        FROM VENTAS
-                                                       WHERE CAST(FECHA_VENTA) = :FECHA ");
+                                                       WHERE FECHA_VENTA = :FECHA ");
         $consulta->bindValue(':FECHA', $fecha, PDO::PARAM_STR);
         $consulta->execute();
 
         $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
 
-        return $resultado;
+        return $resultado['CANTIDAD'];
 
     }
 
     public static function productosMasVendidos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT SUM(STOCK)
-                                                        , NOMBRE_PRODUCTO
-                                                         FROM VENTAS
-                                                         GROUP BY 2
-                                                         ORDER BY 1 DESC
-                                                         LIMIT 1");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT SUM(stock) AS stock
+                                                    , nombre_producto AS nombre 
+                                                    FROM VENTAS 
+                                                    GROUP BY nombre_producto 
+                                                    ORDER BY stock DESC
+                                                    LIMIT 1");
         
         $consulta->execute();
-
-        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Producto');
+        return $consulta->fetchAll(PDO::FETCH_CLASS);
     }
 
+    public function obtenerProductoMasVendido()
+    {
+        var_dump("entro al query");
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT nombre_producto AS nombre
+                                                        , SUM(stock) AS stock
+                                                        FROM VENTAS
+                                                        GROUP BY 1
+                                                        ORDER BY 2 DESC
+                                                        LIMIT 1");
+        
+        $consulta->execute();
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+        return $resultado['nombre'];
+    }
 
 }

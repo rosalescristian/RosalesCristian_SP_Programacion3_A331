@@ -8,22 +8,23 @@ class PedidoController extends Pedido implements IApiUsable
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
-        /* $uploadedFiles = $request->getUploadedFiles(); */
+        $uploadedFiles = $request->getUploadedFiles();
 
         $email = $parametros['mail'];
         $nombre = $parametros['nombre'];
         $tipo = $parametros['tipo'];
         $marca = $parametros['marca'];
         $stock = $parametros['stock'];
-        /* $imagen = $uploadedFiles['imagen'] ?? null; */
+        $imagen = $uploadedFiles['imagen_venta'] ?? null;
 
-       /*  if ($imagen === null || $imagen->getError() !== UPLOAD_ERR_OK) {
+        if ($imagen === null || $imagen->getError() !== UPLOAD_ERR_OK) {
           $payload = json_encode(array("mensaje" => "No se subió ninguna imagen o hubo un error en la carga."));
           $response->getBody()->write($payload);
           return $response->withHeader('Content-Type', 'application/json');
-        } */
+        }
+
+        $directorioImagenes = __DIR__ . '/../ImagenesDeVenta/2024/';
         
-       /*  $directorioImagenes = __DIR__ . '/../ImagenesDeVenta/2024/';
         if (!file_exists($directorioImagenes)) {
           // Intentar crear el directorio
           if (!mkdir($directorioImagenes, 0777, true)) {
@@ -31,10 +32,13 @@ class PedidoController extends Pedido implements IApiUsable
               $response->getBody()->write($payload);
               return $response->withHeader('Content-Type', 'application/json');
           }
-        } */
-        
+        }
+
+        $nombreUsuario = explode('@', $email)[0];
+        $fecha = date('Ymd');
+        $nombreImagen = $nombre . '_' . $tipo . '_' . '_' . $marca . '_' . $nombreUsuario . $fecha . '.' . pathinfo($imagen->getClientFilename(), PATHINFO_EXTENSION);
+
         $producto = Producto::obtenerProductoPorNombreTipoMarca($nombre, $tipo, $marca);
-        /* $nombreImagen = $this->guardarImagen($imagen, $email, $nombre, $tipo, $marca); */
 
         if(!$producto){
           $payload = json_encode(array("error" => "No se encuentra ese producto en la tienda."));
@@ -48,9 +52,6 @@ class PedidoController extends Pedido implements IApiUsable
           return $response->withHeader('Content-Type', 'application/json');
         }
 
-        /* $nombreImagen = $this->guardarImagen($imagen, $email, $nombre, $tipo, $marca);
- */
-
         $precioProducto = Producto::obtenerPrecio($nombre, $tipo, $marca);
         $montoTotal = $precioProducto * $stock;
 
@@ -62,7 +63,7 @@ class PedidoController extends Pedido implements IApiUsable
         $ped->marca = $marca;
         $ped->stock = $stock;
         $ped->precio = $montoTotal;
-        /* $ped->imagen = $nombreImagen; */
+        $ped->imagen = $nombreImagen;
 
         $ped->crearPedido();
 
@@ -97,19 +98,42 @@ class PedidoController extends Pedido implements IApiUsable
     
     public function ModificarUno($request, $response, $args)
     {
-        $parametros = $request->getParsedBody();
+      $datos = $request->getParsedBody();
 
-        $pedido = new Pedido();
-        $pedido->id = $args['id_pedido'];
-        $pedido->id = $args['id_pedido_status'];
-        $pedido->id = $args['id_emplaedo'];
-        Pedido::modificarPedido($pedido);
+        $numeroPedido = $datos['numero_pedido'] ?? null;
+        $email = $datos['email'] ?? null;
+        $nombre = $datos['nombre'] ?? null;
+        $tipo = $datos['tipo'] ?? null;
+        $marca = $datos['marca'] ?? null;
+        $cantidad = $datos['cantidad'] ?? null;
 
-        $payload = json_encode(array("mensaje" => "Pedido modificado con exito"));
+        if (!$numeroPedido || !$email || !$nombre || !$tipo || !$marca || !$cantidad) {
+          $response->getBody()->write(json_encode(['mensaje' => 'Todos los campos son obligatorios']));
+          return $response->withHeader('Content-Type', 'application/json');
+        }
 
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+        $venta = Pedido::obtenerPorNumeroPedido($numeroPedido);
+
+        if ($venta) {
+            $venta->email = $email;
+            $venta->nombre = $nombre;
+            $venta->tipo = $tipo;
+            $venta->marca = $marca;
+            $venta->stock = $cantidad;
+
+            $resultado = Pedido::modificarPedido($venta);
+
+            if ($resultado) {
+              $response->getBody()->write(json_encode(['mensaje' => 'Venta modificada exitosamente']));
+              return $response->withHeader('Content-Type', 'application/json');
+          } else {
+              $response->getBody()->write(json_encode(['mensaje' => 'Error al modificar la venta']));
+              return $response->withHeader('Content-Type', 'application/json');
+          }
+      } else {
+          $response->getBody()->write(json_encode(['mensaje' => 'No existe ese número de pedido']));
+          return $response->withHeader('Content-Type', 'application/json');
+        }
     }
 
     public function BorrarUno($request, $response, $args)
@@ -147,12 +171,12 @@ class PedidoController extends Pedido implements IApiUsable
     public function ventasPorUsuario($request, $response, $args)
     {
       $params = $request->getQueryParams();
-      if(!isset($params['mail'])){
+      if(!isset($params['email'])){
         $payload = json_encode(array("error" => "No se ingreso un mail valido")); 
         $response->getBody()->write($payload);
         return $response->withHeader('Content-Type', 'application/json');
       }
-      $email = $params['mail'];
+      $email = $params['email'];
 
         $pedidosUsuario = Pedido::pedidosPorUsuario($email);
         $payload = json_encode(array("listaPedido" => $pedidosUsuario));
@@ -182,38 +206,51 @@ class PedidoController extends Pedido implements IApiUsable
 
     public function ventasEntreValores($request, $response, $args)
     {
-        $params = $request->getQueryParams();
-        if(!isset($params['valor_minimo'], $params['valor_maximo'])){
-          $payload = json_encode(array("error" => "No se ingresaron un valor maximo y minimo valido")); 
+      $params = $request->getQueryParams();
+      if (!isset($params['valor_minimo'], $params['valor_maximo'])) {
+          $payload = json_encode(array("error" => "No se ingresaron un valor máximo y mínimo válido")); 
           $response->getBody()->write($payload);
           return $response->withHeader('Content-Type', 'application/json');
-        }
-        else{
+      } else {
           $max = $params['valor_maximo'];
           $min = $params['valor_minimo'];
-        }
-
-        $cantidadVendidos = Pedido::obtenerVentasEntreValores($min, $max);
-        $payload = json_encode(array("listaPedido" => $cantidadVendidos));
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+      }
+  
+      $cantidadVendidos = Pedido::obtenerVentasEntreValores($min, $max);
+  
+      if ($cantidadVendidos === null || empty($cantidadVendidos)) {
+          $payload = json_encode(array("mensaje" => "No se encontraron ventas entre $min y $max."));
+      } else {
+          $payload = json_encode(array("listaPedido" => $cantidadVendidos));
+      }
+  
+      $response->getBody()->write($payload);
+      return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function ventasPorDia($request, $response, $args)
+    public function ingresos($request, $response, $args)
     {
-      /* $params = $request->getQueryParams();
-      if(!isset($params['fecha_venta'])){
-        $fecha = date('Y-m-d', strtotime('-1 day'));
-      }
-      else{
-        $fecha = $params['fecha_venta'];
+      $params = $request->getQueryParams();
+    
+      if (!isset($params['fecha_venta'])) {
+          $ingresosTotales = Pedido::obtenerGananciasTotales();
+          $payload = json_encode(array("totalGanancias" => $ingresosTotales));
+      } else {
+          $fecha = $params['fecha_venta'];
+          $ingresosPorDia = Pedido::obtenerGananciasPorFecha($fecha);
+          
+          if ($ingresosPorDia === null || empty($ingresosPorDia)) {
+              $payload = json_encode(array("mensaje" => "No se encontraron ventas para la fecha $fecha."));
+          } else {
+              $payload = json_encode(array("ganancias" => $ingresosPorDia));
+          }
       }
 
-        $cantidadVendidos = Pedido::obtenerVentasEntreValores($min, $max);
-        $payload = json_encode(array("listaPedido" => $cantidadVendidos));
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json'); */
+      $response->getBody()->write($payload);
+      return $response->withHeader('Content-Type', 'application/json');
     }
+
+    /* public function ModificarUno($request, $response, $args){
+
+    } */
 }
