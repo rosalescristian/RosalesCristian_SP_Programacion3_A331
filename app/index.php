@@ -36,6 +36,8 @@ $app->addBodyParsingMiddleware(); // Se parsea el body por si entrar por PUT
 
 
 // Routes
+$app->post('/login',\UsuarioController::class . ':login');
+
 $app->group('/tienda', function (RouteCollectorProxy $group) {
   $group->post('/alta', \ProductoController::class . ':CargarUno');
 });

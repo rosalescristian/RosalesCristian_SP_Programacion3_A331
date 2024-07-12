@@ -13,17 +13,14 @@ class UsuarioController extends Usuario implements IApiUsable
         $password = $data['password'] ?? '';
 
         Usuario::loginUsuario($usuario, $password);
-        // Aquí deberías validar el usuario y contraseña en tu sistema
-        // Simplemente como ejemplo, vamos a verificar un usuario fijo
-        if ($usuario === 'usuario_ejemplo' && $password === 'password_ejemplo') {
-            // Generar token JWT
-            $tokenPayload = [
-                'usuario' => $usuario,
-                'perfil' => 'perfil_del_usuario',
-            ];
+        
+        if($usuario){
+          $tokenPayload = ['usuario' => $usuario,
+                            'perfil' => $usuario['perfil'],
+        ];
 
             $config = require __DIR__ . '/../config.php';
-            $token = JWT::encode($tokenPayload, $config['secret']);
+            $token = JWT::encode($tokenPayload, $config['secret'], 'HS256');
 
             return $response->withJson(['token' => $token]);
         } else {
