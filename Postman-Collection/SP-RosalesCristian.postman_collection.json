@@ -161,7 +161,7 @@
 					"formdata": [
 						{
 							"key": "mail",
-							"value": "Cristian@gmail.com",
+							"value": "cristian@gmail.com",
 							"type": "text"
 						},
 						{
@@ -187,8 +187,7 @@
 						{
 							"key": "imagen_venta",
 							"type": "file",
-							"src": "/D:/Downloads/images.jpeg",
-							"disabled": true
+							"src": "/D:/Downloads/image (3).jpg"
 						}
 					]
 				},
@@ -200,6 +199,106 @@
 					"path": [
 						"ventas",
 						"alta"
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar Producto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "nombre",
+							"value": "Galaxy S24",
+							"type": "text"
+						},
+						{
+							"key": "tipo",
+							"value": "Smartphone",
+							"type": "text"
+						},
+						{
+							"key": "marca",
+							"value": "Samunsg",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/tienda/consultar",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"tienda",
+						"consultar"
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "usuario",
+							"value": "crosales",
+							"type": "text"
+						},
+						{
+							"key": "contrasena",
+							"value": "123456",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"login"
 					]
 				},
 				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
@@ -233,13 +332,13 @@
 					"formdata": [
 						{
 							"key": "fecha_venta",
-							"value": "",
+							"value": "2024-07-12",
 							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "{{base_url}}/ventas/consultar/productos/vendidos?fecha_venta",
+					"raw": "{{base_url}}/ventas/consultar/productos/vendidos?fecha_venta=2024-07-12",
 					"host": [
 						"{{base_url}}"
 					],
@@ -252,7 +351,7 @@
 					"query": [
 						{
 							"key": "fecha_venta",
-							"value": null
+							"value": "2024-07-12"
 						}
 					]
 				},
@@ -293,12 +392,21 @@
 					]
 				},
 				"url": {
-					"raw": "{{base_url}}/usuarios",
+					"raw": "{{base_url}}/ventas/consultar/ventas/porUsuario?email=Cristian@gmail.com",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"usuarios"
+						"ventas",
+						"consultar",
+						"ventas",
+						"porUsuario"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "Cristian@gmail.com"
+						}
 					]
 				},
 				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
@@ -338,12 +446,21 @@
 					]
 				},
 				"url": {
-					"raw": "{{base_url}}/usuarios",
+					"raw": "{{base_url}}/ventas/consultar/ventas/porProducto?tipo=Smartphone",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"usuarios"
+						"ventas",
+						"consultar",
+						"ventas",
+						"porProducto"
+					],
+					"query": [
+						{
+							"key": "tipo",
+							"value": "Smartphone"
+						}
 					]
 				},
 				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
@@ -377,23 +494,36 @@
 					"formdata": [
 						{
 							"key": "valor_minimo",
-							"value": "",
+							"value": "1",
 							"type": "text"
 						},
 						{
 							"key": "valor_maximo",
-							"value": "",
+							"value": "5000000",
 							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "{{base_url}}/usuarios",
+					"raw": "{{base_url}}/ventas/consultar/productos/entreValores?valor_minimo=1&valor_maximo=10",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"usuarios"
+						"ventas",
+						"consultar",
+						"productos",
+						"entreValores"
+					],
+					"query": [
+						{
+							"key": "valor_minimo",
+							"value": "1"
+						},
+						{
+							"key": "valor_maximo",
+							"value": "10"
+						}
 					]
 				},
 				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
@@ -433,12 +563,137 @@
 					]
 				},
 				"url": {
-					"raw": "{{base_url}}/usuarios",
+					"raw": "{{base_url}}/ventas/consultar/ventas/ingresos?fecha_venta",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"usuarios"
+						"ventas",
+						"consultar",
+						"ventas",
+						"ingresos"
+					],
+					"query": [
+						{
+							"key": "fecha_venta",
+							"value": null
+						}
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		},
+		{
+			"name": "Productos mas vendidos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "fecha_venta",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/ventas/consultar/productos/masVendidos",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"ventas",
+						"consultar",
+						"productos",
+						"masVendidos"
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		},
+		{
+			"name": "Modificar Pedido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "numero_pedido",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "martin@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "nombre",
+							"value": "Martin",
+							"type": "text"
+						},
+						{
+							"key": "tipo",
+							"value": "Tablet",
+							"type": "text"
+						},
+						{
+							"key": "marca",
+							"value": "Nokia",
+							"type": "text"
+						},
+						{
+							"key": "cantidad",
+							"value": "34",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/ventas/modificar",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"ventas",
+						"modificar"
 					]
 				},
 				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
